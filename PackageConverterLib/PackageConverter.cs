@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 
@@ -16,25 +15,43 @@ namespace PackageConverterLib
             newFormatArchive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true);
             entriesCount = oldFormatArchive.Entries.Count;
             files = new List<FileData>();
-            GetAllFilesFromOldArchive();
+            GetAllFilesFromOldArchive(oldFormatArchive);
             SetAllFilesToNewArchive();
             return newFormatArchive;
         }
 
-        private static void GetAllFilesFromOldArchive()
+        private static void GetAllFilesFromOldArchive(ZipArchive oldFormatArchive)
         {
-            
+            foreach (var entry in oldFormatArchive.Entries)
+            {
+                var content = new byte[]{};
+                using (var entryStream = entry.Open())
+                    content = StreamHelper.ReadToEnd (entryStream);
+
+                files.Add(new FileData
+                {
+                    OldFileName = entry.FullName,
+                    NewFileName = entry.FullName,
+                    Content = content
+                });
+            }
         }
 
         private static void SetAllFilesToNewArchive()
         {
-            var demoFile = newFormatArchive.CreateEntry("/folder/foo.txt");
-
-            using (var entryStream = demoFile.Open())
-            using (var streamWriter = new StreamWriter(entryStream))
+            foreach (var fileData in files)
             {
-                streamWriter.Write(entriesCount);
+                if (fileData.Content.Length == 0)
+                    continue;
+                var demoFile = newFormatArchive.CreateEntry(fileData.NewFileName);
+
+                using (var entryStream = demoFile.Open())
+                using (var streamWriter = new StreamWriter(entryStream))
+                {
+                    streamWriter.BaseStream.Write(fileData.Content);
+                }
             }
+           
         }
     }
 }
