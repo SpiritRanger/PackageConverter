@@ -1,9 +1,0 @@
-P:\projects\C#\PackageConverter\PackageConverterLib\bin\Debug\netcoreapp3.1\PackageConverterLib.deps.json
-P:\projects\C#\PackageConverter\PackageConverterLib\bin\Debug\netcoreapp3.1\PackageConverterLib.dll
-P:\projects\C#\PackageConverter\PackageConverterLib\bin\Debug\netcoreapp3.1\PackageConverterLib.pdb
-P:\projects\C#\PackageConverter\PackageConverterLib\obj\Debug\netcoreapp3.1\PackageConverterLib.csprojAssemblyReference.cache
-P:\projects\C#\PackageConverter\PackageConverterLib\obj\Debug\netcoreapp3.1\PackageConverterLib.AssemblyInfoInputs.cache
-P:\projects\C#\PackageConverter\PackageConverterLib\obj\Debug\netcoreapp3.1\PackageConverterLib.AssemblyInfo.cs
-P:\projects\C#\PackageConverter\PackageConverterLib\obj\Debug\netcoreapp3.1\PackageConverterLib.csproj.CoreCompileInputs.cache
-P:\projects\C#\PackageConverter\PackageConverterLib\obj\Debug\netcoreapp3.1\PackageConverterLib.dll
-P:\projects\C#\PackageConverter\PackageConverterLib\obj\Debug\netcoreapp3.1\PackageConverterLib.pdb
