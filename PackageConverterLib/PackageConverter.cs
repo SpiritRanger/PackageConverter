@@ -8,12 +8,10 @@ namespace PackageConverterLib
     {
         private static ZipArchive newFormatArchive;
         private static List<FileData> files;
-        private static int entriesCount;
-        
+
         public static ZipArchive Convert(MemoryStream memoryStream, ZipArchive oldFormatArchive)
         {
             newFormatArchive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true);
-            entriesCount = oldFormatArchive.Entries.Count;
             files = new List<FileData>();
             GetAllFilesFromOldArchive(oldFormatArchive);
             SetAllFilesToNewArchive();
@@ -39,6 +37,12 @@ namespace PackageConverterLib
 
         private static void SetAllFilesToNewArchive()
         {
+            SetStatements();
+            SetChecker();
+            SetSolution();
+            SetTests();
+            CreatePackageConfig();
+            CreatePackageFormat();
             foreach (var fileData in files)
             {
                 if (fileData.Content.Length == 0)
@@ -52,6 +56,30 @@ namespace PackageConverterLib
                 }
             }
            
+        }
+
+        private static void SetStatements()
+        {
+        }
+        
+        private static void SetChecker()
+        {
+        }
+        
+        private static void SetSolution()
+        {
+        }
+        
+        private static void SetTests()
+        {
+        }
+        
+        private static void CreatePackageConfig()
+        {
+        }
+        
+        private static void CreatePackageFormat()
+        {
         }
     }
 }
