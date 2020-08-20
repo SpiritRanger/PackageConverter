@@ -43,7 +43,7 @@ namespace PackageConverterLib
             using (var entryStream = file.Open())
             {
                 var content = StreamHelper.ReadToEnd(entryStream);
-                var words = Encoding.UTF8.GetString(content).Split('/', '{', '}', ' ', '\n');
+                var words = Encoding.UTF8.GetString(content, 0, content.Length).Split('/', '{', '}', ' ', '\n');
                 timeLimit = System.Convert.ToInt32(words[11]);
                 problemName = words[3];
                 memoryLimit = System.Convert.ToInt32(words[14]);
@@ -290,7 +290,7 @@ namespace PackageConverterLib
             using (var entryStream = demoFile.Open())
             using (var streamWriter = new StreamWriter(entryStream))
             {
-                streamWriter.BaseStream.Write(file.Content);
+                streamWriter.BaseStream.Write(file.Content, 0, file.Content.Length);
             }
         }
     }
