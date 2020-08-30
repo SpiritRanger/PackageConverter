@@ -10,7 +10,11 @@ namespace PackageConverterLib
     {
         private static ZipArchive newFormatArchive;
         private static ZipArchive oldFormatArchive;
-        private static List<FileData> files;
+        private static List<FileData> checkerFiles;
+        private static List<FileData> statementsFiles;
+        private static List<FileData> solutionFiles;
+        private static List<FileData> testFiles;
+        private static List<FileData> otherFiles;
         private static int memoryLimit;
         private static int timeLimit;
         private static string problemName;
@@ -19,7 +23,11 @@ namespace PackageConverterLib
         {
             PackageConverter.oldFormatArchive = oldFormatArchive;
             newFormatArchive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true);
-            files = new List<FileData>();
+            checkerFiles = new List<FileData>();
+            statementsFiles = new List<FileData>();
+            solutionFiles = new List<FileData>();
+            testFiles = new List<FileData>();
+            otherFiles = new List<FileData>();
             GetAllFilesFromOldArchive();
             SetAllFilesToNewArchive(copyPDFStatements);
             return newFormatArchive;
@@ -53,18 +61,18 @@ namespace PackageConverterLib
 
         private static void GetOtherFiles()
         {
-            var testFiles = GetFilesWhichStartsWith("files/")
+            var zipFiles = GetFilesWhichStartsWith("files/")
                 .Select(entry => entry)
                 .Where(entry => !entry.FullName.EndsWith(".exe"))
                 .ToList();
-            foreach (var file in testFiles)
+            foreach (var file in zipFiles)
             {
 
                 byte[] content;
                 using (var entryStream = file.Open())
                     content = StreamHelper.ReadToEnd (entryStream);
 
-                files.Add(new FileData
+                otherFiles.Add(new FileData
                 {
                     OldFileName = file.FullName,
                     NewFileName = $"misc/{file.FullName}",
@@ -75,15 +83,15 @@ namespace PackageConverterLib
 
         private static void GetTests()
         {
-            var testFiles = GetFilesWhichStartsWith("tests/").ToList();
-            foreach (var file in testFiles)
+            var zipFiles = GetFilesWhichStartsWith("tests/").ToList();
+            foreach (var file in zipFiles)
             {
 
                 byte[] content;
                 using (var entryStream = file.Open())
                     content = StreamHelper.ReadToEnd (entryStream);
 
-                files.Add(new FileData
+                testFiles.Add(new FileData
                 {
                     OldFileName = file.FullName,
                     NewFileName = file.FullName.Contains(".a") ? 
@@ -96,14 +104,14 @@ namespace PackageConverterLib
 
         private static void GetSolution()
         {
-            var testFiles = GetFilesWhichStartsWith("solutions/").ToList();
-            foreach (var file in testFiles.Where(file => !file.FullName.EndsWith(".exe")))
+            var zipFiles = GetFilesWhichStartsWith("solutions/").ToList();
+            foreach (var file in zipFiles.Where(file => !file.FullName.EndsWith(".exe")))
             {
                 byte[] content;
                 using (var entryStream = file.Open())
                     content = StreamHelper.ReadToEnd (entryStream);
 
-                files.Add(new FileData
+                solutionFiles.Add(new FileData
                 {
                     OldFileName = file.FullName,
                     NewFileName = $"misc/{file.FullName}",
@@ -114,14 +122,14 @@ namespace PackageConverterLib
 
         private static void GetChecker()
         {
-            var testFiles = oldFormatArchive.Entries.Select(entry => entry).Where(entry => entry.FullName == "check.cpp").ToList();
-            foreach (var file in testFiles)
+            var zipFiles = oldFormatArchive.Entries.Select(entry => entry).Where(entry => entry.FullName == "check.cpp").ToList();
+            foreach (var file in zipFiles)
             {
                 byte[] content;
                 using (var entryStream = file.Open())
                     content = StreamHelper.ReadToEnd (entryStream);
 
-                files.Add(new FileData
+                checkerFiles.Add(new FileData
                 {
                     OldFileName = file.FullName,
                     NewFileName = "checker/checker.cpp",
@@ -132,17 +140,17 @@ namespace PackageConverterLib
 
         private static void GetStatements()
         {
-            var statementFiles = GetFilesWhichStartsWith("statements/.html/russian").ToList();
-            statementFiles = statementFiles.Concat(GetFilesWhichStartsWith("statements/.pdf/russian"))
+            var zipFiles = GetFilesWhichStartsWith("statements/.html/russian").ToList();
+            zipFiles = zipFiles.Concat(GetFilesWhichStartsWith("statements/.pdf/russian"))
                 .ToList();
-            foreach (var file in statementFiles)
+            foreach (var file in zipFiles)
             {
 
                 byte[] content;
                 using (var entryStream = file.Open())
                     content = StreamHelper.ReadToEnd (entryStream);
 
-                files.Add(new FileData
+                statementsFiles.Add(new FileData
                 {
                     OldFileName = file.FullName,
                     NewFileName = file.FullName.Contains("/.html/") ? 
@@ -172,10 +180,7 @@ namespace PackageConverterLib
 
         private static void SetOtherFiles()
         {
-            var statementFiles = files.Select(data => data)
-                .Where(data => data.NewFileName.StartsWith(@"misc/files/")).ToList();
-            
-            foreach (var file in statementFiles.Where(fileData => fileData.Content.Length != 0))
+            foreach (var file in otherFiles.Where(fileData => fileData.Content.Length != 0))
             {
                 SetOneFileToNewArchive(file);
             }
@@ -183,10 +188,10 @@ namespace PackageConverterLib
 
         private static void SetStatements(string type)
         {
-            var statementFiles = files.Select(data => data)
+            var files = statementsFiles.Select(data => data)
                 .Where(data => data.NewFileName.Contains($@"statement/") && data.OldFileName.Contains(type)).ToList();
             
-            foreach (var file in statementFiles.Where(fileData => fileData.Content.Length != 0))
+            foreach (var file in files.Where(fileData => fileData.Content.Length != 0))
             {
                 SetOneFileToNewArchive(file);
             }
@@ -204,7 +209,7 @@ namespace PackageConverterLib
         
         private static void SetStatementsToMisc(string type)
         {
-            var statementFiles = files.Select(data => data)
+            var statementFiles = statementsFiles.Select(data => data)
                 .Where(data => data.NewFileName.Contains($"statement/") && data.OldFileName.Contains(type)).ToList();
             
             foreach (var file in statementFiles.Where(fileData => fileData.Content.Length != 0))
@@ -216,10 +221,8 @@ namespace PackageConverterLib
 
         private static void SetChecker()
         {
-            var testFiles = files.Select(data => data)
-                .Where(data => data.OldFileName.Equals(@"check.cpp")).ToList();
-            
-            foreach (var file in testFiles.Where(fileData => fileData.Content.Length != 0))
+
+            foreach (var file in checkerFiles.Where(fileData => fileData.Content.Length != 0))
             {
                 SetOneFileToNewArchive(file);
             }
@@ -237,10 +240,7 @@ namespace PackageConverterLib
         
         private static void SetSolution()
         {
-            var testFiles = files.Select(data => data)
-                .Where(data => data.OldFileName.Contains($@"solution")).ToList();
-            
-            foreach (var file in testFiles.Where(fileData => fileData.Content.Length != 0))
+            foreach (var file in solutionFiles.Where(fileData => fileData.Content.Length != 0))
             {
                 SetOneFileToNewArchive(file);
             }
@@ -248,9 +248,6 @@ namespace PackageConverterLib
         
         private static void SetTests()    
         {
-            var testFiles = files.Select(data => data)
-                .Where(data => data.NewFileName.Contains($@"tests/")).ToList();
-            
             foreach (var file in testFiles.Where(fileData => fileData.Content.Length != 0))
             {
                 SetOneFileToNewArchive(file);

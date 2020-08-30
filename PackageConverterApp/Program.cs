@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.IO.Compression;
 using PackageConverterLib;
 
@@ -11,9 +12,10 @@ namespace PackageConverterApp
             var testFolderPath = Directory.GetCurrentDirectory();
             testFolderPath=  Path.GetFullPath(Path.Combine(testFolderPath, @"..\..\..\.."));
             testFolderPath=  Path.GetFullPath(Path.Combine(testFolderPath, @"test-destinations"));
-            var testArchivePath = Directory.GetCurrentDirectory();
-            testArchivePath=  Path.GetFullPath(Path.Combine(testArchivePath, @"..\..\..\.."));
-            testArchivePath=  Path.GetFullPath(Path.Combine(testArchivePath, @"test-sources\darts-8$windows.zip"));
+            
+            Console.WriteLine("Введите полный путь к архиву, который необходимо конвертировать");
+            
+            var testArchivePath = Console.ReadLine();
 
 
             var archiveCodeforces = new ZipArchive(new FileStream(testArchivePath, FileMode.Open), ZipArchiveMode.Read);
